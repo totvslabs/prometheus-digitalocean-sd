@@ -17,12 +17,6 @@
   revision = "2efee857e7cfd4f3d0138cc3cbb1b4966962b93a"
 
 [[projects]]
-  name = "github.com/caarlos0/ctrlc"
-  packages = ["."]
-  revision = "70dc48d5d792f20f684a8f1d29bbac298f4b2ef4"
-  version = "v1.0.0"
-
-[[projects]]
   name = "github.com/digitalocean/godo"
   packages = ["."]
   revision = "970b46ffe46bacda668dd58a8a1aba9d775b8895"
@@ -39,6 +33,12 @@
   name = "github.com/google/go-querystring"
   packages = ["query"]
   revision = "53e6ce116135b80d037921a7fdd5138cf32d7a8a"
+
+[[projects]]
+  name = "github.com/pkg/errors"
+  packages = ["."]
+  revision = "645ef00459ed84a119197bfb8d8205042c6df63d"
+  version = "v0.8.0"
 
 [[projects]]
   branch = "master"
@@ -93,6 +93,6 @@
 [solve-meta]
   analyzer-name = "dep"
   analyzer-version = 1
-  inputs-digest = "c50337201ff47533133d3f82161adbbc2e0c9aa753e4c4b83e8c4b6e7a46cc83"
+  inputs-digest = "0f27020a5dc49c41d0232a7acea10237b9ba2fe3ef41d33d69e0868acf552ee9"
   solver-name = "gps-cdcl"
   solver-version = 1
