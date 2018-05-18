@@ -43,9 +43,9 @@ func main() {
 	a.HelpFlag.Short('h')
 	a.Version(version)
 	a.VersionFlag.Short('v')
-	a.Parse(os.Args[1:])
-	var ctx = context.Background()
+	kingpin.MustParse(a.Parse(os.Args[1:]))
 
+	var ctx = context.Background()
 	var client = godo.NewClient(oauth2.NewClient(ctx, oauth2.StaticTokenSource(
 		&oauth2.Token{
 			AccessToken: *doToken,
@@ -109,8 +109,7 @@ func toTargetList(nodes []godo.Droplet) ([]Target, error) {
 		if pvtIPAddr != "" {
 			labels[doLabelInstancePrivateIP] = model.LabelValue(pvtIPAddr)
 		}
-		var addr = net.JoinHostPort(ipAddr, fmt.Sprintf("%s", *servicePort))
-		// labels[model.AddressLabel] = model.LabelValue(addr) do we need that?
+		var addr = net.JoinHostPort(ipAddr, *servicePort)
 		labels[doLabelInstanceStatus] = model.LabelValue(node.Status)
 		labels[doLabelInstanceRegion] = model.LabelValue(node.Region.Slug)
 		labels[doLabelInstanceSize] = model.LabelValue(node.SizeSlug)
@@ -134,7 +133,7 @@ func write(data []Target) error {
 	if err != nil {
 		return errors.Wrap(err, "couldn't create temp file")
 	}
-	defer tmpfile.Close()
+	defer tmpfile.Close() // nolint: errcheck
 
 	_, err = tmpfile.Write(b)
 	if err != nil {

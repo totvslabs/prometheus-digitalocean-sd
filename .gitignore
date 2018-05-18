@@ -1,2 +1,4 @@
 vendor
 do_sd.json
+prometheus-digitalocean-sd
+dist
