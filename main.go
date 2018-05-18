@@ -11,7 +11,6 @@ import (
 	"path/filepath"
 	"time"
 
-	"github.com/caarlos0/ctrlc"
 	"github.com/digitalocean/godo"
 	"github.com/pkg/errors"
 	"github.com/prometheus/common/model"
@@ -35,10 +34,15 @@ var (
 	outputFile  = a.Flag("output.file", "Output file for file_sd compatible file.").Default("do_sd.json").String()
 	doToken     = a.Flag("token", "DigitalOcean API token").Envar("DO_TOKEN").Required().String()
 	servicePort = a.Flag("service.port", "port to try to use on droplets found").Default("9100").String()
+	sleep       = a.Flag("sleep", "time to sleep between each refresh").Default("1m").Duration()
+
+	version = "master"
 )
 
 func main() {
 	a.HelpFlag.Short('h')
+	a.Version(version)
+	a.VersionFlag.Short('v')
 	a.Parse(os.Args[1:])
 	var ctx = context.Background()
 
@@ -48,36 +52,36 @@ func main() {
 		},
 	)))
 
-	if err := ctrlc.Default.Run(ctx, func() error {
-		for range time.Tick(time.Minute) {
-			log.Println("gathering droplets...")
-			opt := &godo.ListOptions{
-				Page: 1,
-			}
-			var nodes []godo.Droplet
-			for {
-				droplets, resp, err := client.Droplets.List(ctx, opt)
-				if err != nil {
-					return errors.Wrap(err, "failed to get list of droplets")
-				}
-				nodes = append(nodes, droplets...)
-				if resp.Links == nil || resp.Links.IsLastPage() {
-					break
-				}
-				opt.Page = opt.Page + 1
-			}
-			targets, err := toTargetList(nodes)
-			if err != nil {
-				return err
-			}
-			if err := write(targets); err != nil {
-				return err
-			}
+	for {
+		if err := pullAndWrite(ctx, client); err != nil {
+			log.Fatalln(err)
 		}
-		return nil
-	}); err != nil {
-		log.Fatal(err)
+		time.Sleep(*sleep)
 	}
+}
+
+func pullAndWrite(ctx context.Context, client *godo.Client) error {
+	log.Println("gathering droplets...")
+	opt := &godo.ListOptions{
+		Page: 1,
+	}
+	var nodes []godo.Droplet
+	for {
+		droplets, resp, err := client.Droplets.List(ctx, opt)
+		if err != nil {
+			return errors.Wrap(err, "couldn't get the list of droplets")
+		}
+		nodes = append(nodes, droplets...)
+		if resp.Links == nil || resp.Links.IsLastPage() {
+			break
+		}
+		opt.Page = opt.Page + 1
+	}
+	targets, err := toTargetList(nodes)
+	if err != nil {
+		return err
+	}
+	return write(targets)
 }
 
 func toTargetList(nodes []godo.Droplet) ([]Target, error) {
