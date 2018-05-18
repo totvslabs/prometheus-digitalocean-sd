@@ -8,3 +8,6 @@ builds:
   - amd64
 dockers:
 - image: totvslabs/prometheus-digitalocean-sd
+  tag_templates:
+  - "{{ .Tag }}"
+  - latest
