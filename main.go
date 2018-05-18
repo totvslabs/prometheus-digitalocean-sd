@@ -25,7 +25,7 @@ const (
 	doLabelInstanceStatus    = doLabel + "status"
 	doLabelInstancePrivateIP = doLabel + "private_ip"
 	doLabelInstancePublicIP  = doLabel + "public_ip"
-	doLabelInstanceRegion    = doLabel + "az"
+	doLabelInstanceRegion    = doLabel + "region"
 	doLabelInstanceSize      = doLabel + "size"
 )
 
@@ -130,7 +130,7 @@ func write(data []Target) error {
 	}
 
 	dir, _ := filepath.Split(*outputFile)
-	tmpfile, err := ioutil.TempFile(dir, "sd-adapter")
+	tmpfile, err := ioutil.TempFile(dir, "sd")
 	if err != nil {
 		return errors.Wrap(err, "couldn't create temp file")
 	}
