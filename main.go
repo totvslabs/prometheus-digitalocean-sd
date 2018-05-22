@@ -69,7 +69,7 @@ func pullAndWrite(ctx context.Context, client *godo.Client) error {
 	for {
 		droplets, resp, err := client.Droplets.List(ctx, opt)
 		if err != nil {
-			return errors.Wrap(err, "couldn't get the list of droplets")
+			return errors.Wrap(err, "could not  get the list of droplets")
 		}
 		nodes = append(nodes, droplets...)
 		if resp.Links == nil || resp.Links.IsLastPage() {
@@ -93,11 +93,11 @@ func toTargetList(nodes []godo.Droplet) ([]Target, error) {
 		}
 		ipAddr, err := node.PublicIPv4()
 		if err != nil {
-			return targets, errors.Wrap(err, "couldn't find a public ipv4 addr")
+			return targets, errors.Wrap(err, "could not  find a public ipv4 addr")
 		}
 		pvtIPAddr, err := node.PrivateIPv4()
 		if err != nil {
-			return targets, errors.Wrap(err, "couldn't find a private ipv4 addr")
+			return targets, errors.Wrap(err, "could not  find a private ipv4 addr")
 		}
 
 		labels := model.LabelSet{
@@ -125,20 +125,26 @@ func toTargetList(nodes []godo.Droplet) ([]Target, error) {
 func write(data []Target) error {
 	b, err := json.MarshalIndent(data, "", "\t")
 	if err != nil {
-		return errors.Wrap(err, "couldn't marshal json")
+		return errors.Wrap(err, "could not  marshal json")
 	}
 
 	dir, _ := filepath.Split(*outputFile)
+	if dir != "" {
+		if err := os.MkdirAll(dir, 0755); err != nil {
+			return errors.Wrap(err, "could not  create directory")
+		}
+	}
 	tmpfile, err := ioutil.TempFile(dir, "sd")
 	if err != nil {
-		return errors.Wrap(err, "couldn't create temp file")
+		return errors.Wrap(err, "could not  create temp file")
 	}
 	defer tmpfile.Close() // nolint: errcheck
 
 	_, err = tmpfile.Write(b)
 	if err != nil {
-		return errors.Wrap(err, "couldn't write to temp file")
+		return errors.Wrap(err, "could not  write to temp file")
 	}
+	defer log.Println("written", tmpfile.Name())
 	return os.Rename(tmpfile.Name(), *outputFile)
 }
 
