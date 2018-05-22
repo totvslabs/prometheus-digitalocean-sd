@@ -144,7 +144,7 @@ func write(data []Target) error {
 	if err != nil {
 		return errors.Wrap(err, "could not  write to temp file")
 	}
-	defer log.Println("written", tmpfile.Name())
+	defer log.Println("written", *outputFile)
 	return os.Rename(tmpfile.Name(), *outputFile)
 }
 
