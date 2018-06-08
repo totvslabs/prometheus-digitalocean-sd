@@ -9,6 +9,7 @@ import (
 	"net"
 	"os"
 	"path/filepath"
+	"strings"
 	"time"
 
 	"github.com/digitalocean/godo"
@@ -19,14 +20,15 @@ import (
 )
 
 const (
-	doLabel                  = model.MetaLabelPrefix + "do_"
-	doLabelInstanceID        = doLabel + "id"
-	doLabelInstanceName      = doLabel + "name"
-	doLabelInstanceStatus    = doLabel + "status"
-	doLabelInstancePrivateIP = doLabel + "private_ip"
-	doLabelInstancePublicIP  = doLabel + "public_ip"
-	doLabelInstanceRegion    = doLabel + "region"
-	doLabelInstanceSize      = doLabel + "size"
+	doLabel          = model.MetaLabelPrefix + "do_"
+	doLabelID        = doLabel + "id"
+	doLabelName      = doLabel + "name"
+	doLabelTags      = doLabel + "tags"
+	doLabelStatus    = doLabel + "status"
+	doLabelPrivateIP = doLabel + "private_ip"
+	doLabelPublicIP  = doLabel + "public_ip"
+	doLabelRegion    = doLabel + "region"
+	doLabelSize      = doLabel + "size"
 )
 
 var (
@@ -101,19 +103,20 @@ func toTargetList(nodes []godo.Droplet) ([]Target, error) {
 		}
 
 		labels := model.LabelSet{
-			doLabelInstanceID: model.LabelValue(fmt.Sprintf("%d", node.ID)),
+			doLabelID: model.LabelValue(fmt.Sprintf("%d", node.ID)),
 		}
 		if ipAddr != "" {
-			labels[doLabelInstancePublicIP] = model.LabelValue(ipAddr)
+			labels[doLabelPublicIP] = model.LabelValue(ipAddr)
 		}
 		if pvtIPAddr != "" {
-			labels[doLabelInstancePrivateIP] = model.LabelValue(pvtIPAddr)
+			labels[doLabelPrivateIP] = model.LabelValue(pvtIPAddr)
 		}
 		var addr = net.JoinHostPort(ipAddr, *servicePort)
-		labels[doLabelInstanceStatus] = model.LabelValue(node.Status)
-		labels[doLabelInstanceRegion] = model.LabelValue(node.Region.Slug)
-		labels[doLabelInstanceSize] = model.LabelValue(node.SizeSlug)
-		labels[doLabelInstanceName] = model.LabelValue(node.Name)
+		labels[doLabelStatus] = model.LabelValue(node.Status)
+		labels[doLabelRegion] = model.LabelValue(node.Region.Slug)
+		labels[doLabelSize] = model.LabelValue(node.SizeSlug)
+		labels[doLabelName] = model.LabelValue(node.Name)
+		labels[doLabelTags] = model.LabelValue(strings.Join(node.Tags, ","))
 		targets = append(targets, Target{
 			Targets: []string{addr},
 			Labels:  labels,
