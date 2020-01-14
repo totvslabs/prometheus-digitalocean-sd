@@ -147,8 +147,13 @@ func write(data []Target) error {
 	if err != nil {
 		return errors.Wrap(err, "could not  write to temp file")
 	}
+
 	defer log.Println("written", *outputFile)
-	return os.Rename(tmpfile.Name(), *outputFile)
+	if err := os.Rename(tmpfile.Name(), *outputFile); err != nil {
+		log.Fatal(err)
+	}
+	// Set file mode to '0644' instead of '0600' by default for tmpfile
+	return os.Chmod(*outputFile, 0644)
 }
 
 // Target is a target that marshal into the file_sd prometheus json format
