@@ -7,7 +7,6 @@ builds:
   goarch:
   - amd64
 dockers:
-- image: totvslabs/prometheus-digitalocean-sd
-  tag_templates:
-  - "{{ .Tag }}"
-  - latest
+- image_templates:
+  - 'totvslabs/prometheus-digitalocean-sd:{{ .Tag }}'
+  - 'totvslabs/prometheus-digitalocean-sd:latest'
