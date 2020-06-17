@@ -1,3 +1,8 @@
+**DEPRECATED**: support has been added [natively to prometheus](https://github.com/prometheus/prometheus/pull/7407).
+
+
+------
+
 # prometheus-digitalocean-sd
 
 Uses DigitalOcean's API to generate a `file_sd_config`'s compatible JSON
